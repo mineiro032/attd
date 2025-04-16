@@ -79,8 +79,6 @@
     <h2 id="attendantName"></h2>
     <div class="totals">
         <p>Vendas Diárias: <span id="dailyTotal">R$ 0,00</span></p>
-        <p>Vendas Semanais: <span id="weeklyTotal">R$ 0,00</span></p>
-        <p>Vendas Mensais: <span id="monthlyTotal">R$ 0,00</span></p>
     </div>
 
     <h3>Registro de Vendas</h3>
@@ -121,28 +119,22 @@
     const salesForm = document.getElementById('salesForm');
     const salesTable = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
     const dailyTotalDisplay = document.getElementById('dailyTotal');
-    const weeklyTotalDisplay = document.getElementById('weeklyTotal');
-    const monthlyTotalDisplay = document.getElementById('monthlyTotal');
 
     let dailyTotal = 0;
-    let weeklyTotal = 0;
-    let monthlyTotal = 0;
 
-    // Carregar vendas do Local Storage
     const loadSales = () => {
         const salesData = JSON.parse(localStorage.getItem(attendantName)) || [];
         salesData.forEach(sale => {
             addSaleToTable(sale.descricao, sale.valor, sale.data);
-            updateTotals(sale.valor, new Date(sale.data));
         });
+        updateTotals(); // Atualiza totais após carregar as vendas
     };
 
-    // Adicionar venda à tabela
     const addSaleToTable = (descricao, valor, data) => {
         const row = salesTable.insertRow();
         row.insertCell(0).innerText = descricao;
         row.insertCell(1).innerText = `R$ ${valor.toFixed(2)}`;
-        row.insertCell(2).innerText = new Date(data).toLocaleDateString('pt-BR');
+        row.insertCell(2).innerText = new Date(data).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
     };
 
     salesForm.addEventListener('submit', function(event) {
@@ -155,39 +147,33 @@
         // Adiciona a venda ao histórico
         addSaleToTable(descricao, valor, data);
 
-        // Atualiza totais
-        updateTotals(valor, new Date(data));
-
         // Salva no Local Storage
         saveSale(descricao, valor, data);
+
+        // Atualiza totais
+        updateTotals();
 
         // Limpa o formulário
         salesForm.reset();
     });
 
-    const updateTotals = (valor, data) => {
+    const updateTotals = () => {
+        dailyTotal = 0; // Reiniciar o total diário
+
+        const salesData = JSON.parse(localStorage.getItem(attendantName)) || [];
         const today = new Date();
-        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const todayString = today.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 
-        // Atualiza saldo diário
-        if (data.toDateString() === new Date().toDateString()) {
-            dailyTotal += valor;
-        }
-        
-        // Atualiza saldo semanal
-        if (data >= startOfWeek) {
-            weeklyTotal += valor;
-        }
+        salesData.forEach(sale => {
+            const saleDate = new Date(sale.data);
 
-        // Atualiza saldo mensal
-        if (data >= startOfMonth) {
-            monthlyTotal += valor;
-        }
+            // Atualiza o total diário
+            if (saleDate.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) === todayString) {
+                dailyTotal += sale.valor;
+            }
+        });
 
         dailyTotalDisplay.innerText = `R$ ${dailyTotal.toFixed(2)}`;
-        weeklyTotalDisplay.innerText = `R$ ${weeklyTotal.toFixed(2)}`;
-        monthlyTotalDisplay.innerText = `R$ ${monthlyTotal.toFixed(2)}`;
     };
 
     const saveSale = (descricao, valor, data) => {
