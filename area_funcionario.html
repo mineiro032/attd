@@ -142,7 +142,7 @@
         
         const descricao = document.getElementById('descricao').value;
         const valor = parseFloat(document.getElementById('valor').value);
-        const data = new Date(document.getElementById('data').value + 'T00:00:00-03:00'); // Define a data com fuso horário de SP
+        const data = new Date(); // Captura a data e hora atuais
 
         // Adiciona a venda ao histórico
         addSaleToTable(descricao, valor, data);
