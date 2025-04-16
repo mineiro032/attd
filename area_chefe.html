@@ -68,11 +68,10 @@
 </div>
 
 <script>
-    const correctPassword = 'senhaSecreta'; // A mesma senha definida na página de login
-    const enteredPassword = prompt('Digite a senha para acessar esta página:');
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
 
-    if (enteredPassword !== correctPassword) {
-        alert('Acesso negado!');
+    if (isAuthenticated !== 'true') {
+        alert('Você precisa fazer login para acessar esta página.');
         window.location.href = 'login.html'; // Redireciona para a página de login
     } else {
         const attendants = ['Atendente 1', 'Atendente 2', 'Atendente 3', 'Atendente 4', 'Atendente 5'];

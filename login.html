@@ -65,6 +65,7 @@
     loginButton.addEventListener('click', function() {
         const enteredPassword = document.getElementById('chefePassword').value;
         if (enteredPassword === correctPassword) {
+            localStorage.setItem('isAuthenticated', 'true'); // Armazena o estado de autenticação
             window.location.href = 'area_chefe.html'; // Redireciona para a área do chefe
         } else {
             alert('Senha incorreta!');
