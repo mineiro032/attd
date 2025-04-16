@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Chefe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+        h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Área do Chefe</h1>
+</header>
+
+<div class="container">
+    <h2>Resumo de Vendas dos Atendentes</h2>
+    <table id="summaryTable">
+        <thead>
+            <tr>
+                <th>Atendente</th>
+                <th>Vendas Diárias</th>
+                <th>Vendas Semanais</th>
+                <th>Vendas Mensais</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados dos atendentes aparecerão aqui -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const attendants = ['Atendente 1', 'Atendente 2', 'Atendente 3', 'Atendente 4', 'Atendente 5'];
+
+    const summaryTable = document.getElementById('summaryTable').getElementsByTagName('tbody')[0];
+
+    attendants.forEach(attendant => {
+        const salesData = JSON.parse(localStorage.getItem(attendant)) || [];
+        let dailyTotal = 0;
+        let weeklyTotal = 0;
+        let monthlyTotal = 0;
+
+        const today = new Date();
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        salesData.forEach(sale => {
+            const saleDate = new Date(sale.data);
+            if (saleDate.toDateString() === today.toDateString()) {
+                dailyTotal += sale.valor;
+            }
+            if (saleDate >= startOfWeek) {
+                weeklyTotal += sale.valor;
+            }
+            if (saleDate >= startOfMonth) {
+                monthlyTotal += sale.valor;
+            }
+        });
+
+        const row = summaryTable.insertRow();
+        row.insertCell(0).innerText = attendant;
+        row.insertCell(1).innerText = `R$ ${dailyTotal.toFixed(2)}`;
+        row.insertCell(2).innerText = `R$ ${weeklyTotal.toFixed(2)}`;
+        row.insertCell(3).innerText = `R$ ${monthlyTotal.toFixed(2)}`;
+    });
+</script>
+
+</body>
+</html>

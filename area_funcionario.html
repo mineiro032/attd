@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Funcionário</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+        h2 {
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background: #0056b3;
+        }
+        .totals {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Área do Funcionário</h1>
+</header>
+
+<div class="container">
+    <h2 id="attendantName"></h2>
+    <div class="totals">
+        <p>Vendas Diárias: <span id="dailyTotal">R$ 0,00</span></p>
+        <p>Vendas Semanais: <span id="weeklyTotal">R$ 0,00</span></p>
+        <p>Vendas Mensais: <span id="monthlyTotal">R$ 0,00</span></p>
+    </div>
+
+    <h3>Registro de Vendas</h3>
+    <form id="salesForm">
+        <label for="descricao">Descrição do Produto:</label>
+        <input type="text" id="descricao" name="descricao" required>
+
+        <label for="valor">Valor da Venda:</label>
+        <input type="number" id="valor" name="valor" required>
+
+        <label for="data">Data da Venda:</label>
+        <input type="date" id="data" name="data" required>
+
+        <input type="submit" value="Registrar Venda">
+    </form>
+    <div>
+        <h3>Histórico de Vendas</h3>
+        <table id="salesTable">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Vendas registradas aparecerão aqui -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const attendantName = urlParams.get('atendente');
+    document.getElementById('attendantName').innerText = `Bem-vindo, ${attendantName}!`;
+
+    const salesForm = document.getElementById('salesForm');
+    const salesTable = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
+    const dailyTotalDisplay = document.getElementById('dailyTotal');
+    const weeklyTotalDisplay = document.getElementById('weeklyTotal');
+    const monthlyTotalDisplay = document.getElementById('monthlyTotal');
+
+    let dailyTotal = 0;
+    let weeklyTotal = 0;
+    let monthlyTotal = 0;
+
+    // Carregar vendas do Local Storage
+    const loadSales = () => {
+        const salesData = JSON.parse(localStorage.getItem(attendantName)) || [];
+        salesData.forEach(sale => {
+            addSaleToTable(sale.descricao, sale.valor, sale.data);
+            updateTotals(sale.valor, new Date(sale.data));
+        });
+    };
+
+    // Adicionar venda à tabela
+    const addSaleToTable = (descricao, valor, data) => {
+        const row = salesTable.insertRow();
+        row.insertCell(0).innerText = descricao;
+        row.insertCell(1).innerText = `R$ ${valor.toFixed(2)}`;
+        row.insertCell(2).innerText = new Date(data).toLocaleDateString('pt-BR');
+    };
+
+    salesForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const descricao = document.getElementById('descricao').value;
+        const valor = parseFloat(document.getElementById('valor').value);
+        const data = document.getElementById('data').value;
+
+        // Adiciona a venda ao histórico
+        addSaleToTable(descricao, valor, data);
+
+        // Atualiza totais
+        updateTotals(valor, new Date(data));
+
+        // Salva no Local Storage
+        saveSale(descricao, valor, data);
+
+        // Limpa o formulário
+        salesForm.reset();
+    });
+
+    const updateTotals = (valor, data) => {
+        const today = new Date();
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        // Atualiza saldo diário
+        if (data.toDateString() === new Date().toDateString()) {
+            dailyTotal += valor;
+        }
+        
+        // Atualiza saldo semanal
+        if (data >= startOfWeek) {
+            weeklyTotal += valor;
+        }
+
+        // Atualiza saldo mensal
+        if (data >= startOfMonth) {
+            monthlyTotal += valor;
+        }
+
+        dailyTotalDisplay.innerText = `R$ ${dailyTotal.toFixed(2)}`;
+        weeklyTotalDisplay.innerText = `R$ ${weeklyTotal.toFixed(2)}`;
+        monthlyTotalDisplay.innerText = `R$ ${monthlyTotal.toFixed(2)}`;
+    };
+
+    const saveSale = (descricao, valor, data) => {
+        const salesData = JSON.parse(localStorage.getItem(attendantName)) || [];
+        salesData.push({ descricao, valor, data });
+        localStorage.setItem(attendantName, JSON.stringify(salesData)); // Salva as vendas no Local Storage
+    };
+
+    // Carregar vendas ao iniciar
+    loadSales();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Controle de Vendas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 20px;
+        }
+        .container {
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+        h2 {
+            color: #333;
+        }
+        .atendentes {
+            margin-top: 20px;
+        }
+        .atendente {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+        .atendente:hover {
+            color: #0056b3;
+        }
+        .password-form {
+            display: none;
+            margin-top: 10px;
+        }
+        .password-form input {
+            padding: 10px;
+            width: 100%;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .password-form button {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .password-form button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Sistema de Controle de Vendas</h1>
+</header>
+
+<nav>
+    <a href="#funcionario">Área do Funcionário</a> | 
+    <a href="login.html">Área do Chefe</a>
+</nav>
+
+<div class="container" id="funcionario">
+    <h2>Atendentes</h2>
+    <div class="atendentes">
+        <div class="atendente" data-password="senha1">Atendente 1</div>
+        <div class="atendente" data-password="senha2">Atendente 2</div>
+        <div class="atendente" data-password="senha3">Atendente 3</div>
+        <div class="atendente" data-password="senha4">Atendente 4</div>
+        <div class="atendente" data-password="senha5">Atendente 5</div>
+    </div>
+    <div class="password-form" id="passwordForm">
+        <h3>Digite sua Senha</h3>
+        <input type="password" id="inputPassword" placeholder="Senha">
+        <button id="submitPassword">Acessar</button>
+        <button id="cancelPassword">Cancelar</button>
+    </div>
+</div>
+
+<script>
+    const atendentes = document.querySelectorAll('.atendente');
+    const passwordForm = document.getElementById('passwordForm');
+    const inputPassword = document.getElementById('inputPassword');
+    const submitPassword = document.getElementById('submitPassword');
+    const cancelPassword = document.getElementById('cancelPassword');
+    let currentAtendente;
+
+    atendentes.forEach(atendente => {
+        atendente.addEventListener('click', function() {
+            currentAtendente = this; // Armazena o atendente atual
+            passwordForm.style.display = 'block'; // Exibe o formulário de senha
+            inputPassword.focus(); // Foca no campo de senha
+        });
+    });
+
+    submitPassword.addEventListener('click', function() {
+        const password = inputPassword.value;
+        if (password === currentAtendente.dataset.password) {
+            // Redireciona para a página do atendente
+            window.location.href = 'area_funcionario.html?atendente=' + currentAtendente.textContent; // Passando o nome do atendente na URL
+        } else {
+            alert('Senha incorreta!');
+        }
+    });
+
+    cancelPassword.addEventListener('click', function() {
+        passwordForm.style.display = 'none'; // Esconde o formulário de senha
+        inputPassword.value = ''; // Limpa o campo de senha
+    });
+</script>
+
+</body>
+</html>
