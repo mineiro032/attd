@@ -42,6 +42,18 @@
             background: #007bff;
             color: white;
         }
+        .cancel-button {
+            background: #ff5722; /* Cor para o botão de cancelamento */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .cancel-button:hover {
+            background: #e64a19;
+        }
     </style>
 </head>
 <body>
@@ -59,6 +71,7 @@
                 <th>Vendas Diárias</th>
                 <th>Vendas Semanais</th>
                 <th>Vendas Mensais</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -106,8 +119,27 @@
             row.insertCell(1).innerText = `R$ ${dailyTotal.toFixed(2)}`;
             row.insertCell(2).innerText = `R$ ${weeklyTotal.toFixed(2)}`;
             row.insertCell(3).innerText = `R$ ${monthlyTotal.toFixed(2)}`;
+            
+            // Botão de cancelamento
+            const cancelButton = document.createElement('button');
+            cancelButton.innerText = 'Cancelar Pagamento';
+            cancelButton.className = 'cancel-button';
+            cancelButton.onclick = () => cancelPayment(attendant);
+            row.insertCell(4).appendChild(cancelButton);
         });
     }
+
+    const cancelPayment = (attendant) => {
+        const confirmation = confirm(`Deseja cancelar o pagamento para ${attendant}?`);
+        if (confirmation) {
+            // Aqui você pode implementar a lógica para cancelar o pagamento
+            alert(`Pagamento para ${attendant} cancelado!`);
+            // Para remover todas as vendas, você pode usar o seguinte:
+            localStorage.removeItem(attendant);
+            // Para atualizar a tabela, você pode recarregar a página ou implementar uma função para atualizar a tabela aqui.
+            window.location.reload();
+        }
+    };
 </script>
 
 </body>
