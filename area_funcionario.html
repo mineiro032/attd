@@ -142,13 +142,13 @@
         
         const descricao = document.getElementById('descricao').value;
         const valor = parseFloat(document.getElementById('valor').value);
-        const data = document.getElementById('data').value;
+        const data = new Date(document.getElementById('data').value + 'T00:00:00-03:00'); // Define a data com fuso horário de SP
 
         // Adiciona a venda ao histórico
         addSaleToTable(descricao, valor, data);
 
         // Salva no Local Storage
-        saveSale(descricao, valor, data);
+        saveSale(descricao, valor, data.toISOString()); // Salva em formato ISO
 
         // Atualiza totais
         updateTotals();
