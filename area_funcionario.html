@@ -35,15 +35,26 @@
             margin-top: 20px;
             font-weight: bold;
             padding: 15px;
-            background: #e9f5ff;
             border-radius: 5px;
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
+            margin-bottom: 20px;
+        }
+        .daily {
+            background: #007bff; /* Azul */
+            color: white;
+        }
+        .weekly {
+            background: #ff9800; /* Laranja */
+            color: white;
+        }
+        .monthly {
+            background: #ff9800; /* Laranja */
+            color: white;
         }
         .totals p {
             margin: 5px 0;
             font-size: 1.2em;
-            color: #007bff;
         }
         form {
             margin-top: 20px;
@@ -109,8 +120,17 @@
 
 <div class="container">
     <h2 id="attendantName"></h2>
-    <div class="totals">
+
+    <div class="totals daily">
         <p>Vendas Diárias: <span id="dailyTotal">R$ 0,00</span></p>
+    </div>
+    
+    <div class="totals weekly">
+        <p>Vendas Semanais: <span id="weeklyTotal">R$ 0,00</span></p>
+    </div>
+
+    <div class="totals monthly">
+        <p>Vendas Mensais: <span id="monthlyTotal">R$ 0,00</span></p>
     </div>
 
     <h3>Registro de Vendas</h3>
@@ -151,8 +171,12 @@
     const salesForm = document.getElementById('salesForm');
     const salesTable = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
     const dailyTotalDisplay = document.getElementById('dailyTotal');
+    const weeklyTotalDisplay = document.getElementById('weeklyTotal');
+    const monthlyTotalDisplay = document.getElementById('monthlyTotal');
 
     let dailyTotal = 0;
+    let weeklyTotal = 0;
+    let monthlyTotal = 0;
 
     const loadSales = () => {
         const salesData = JSON.parse(localStorage.getItem(attendantName)) || [];
@@ -191,10 +215,14 @@
 
     const updateTotals = () => {
         dailyTotal = 0; // Reiniciar o total diário
+        weeklyTotal = 0; // Reiniciar o total semanal
+        monthlyTotal = 0; // Reiniciar o total mensal
 
         const salesData = JSON.parse(localStorage.getItem(attendantName)) || [];
         const today = new Date();
         const todayString = today.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
         salesData.forEach(sale => {
             const saleDate = new Date(sale.data);
@@ -203,9 +231,19 @@
             if (saleDate.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) === todayString) {
                 dailyTotal += sale.valor;
             }
+            // Atualiza o total semanal
+            if (saleDate >= startOfWeek) {
+                weeklyTotal += sale.valor;
+            }
+            // Atualiza o total mensal
+            if (saleDate >= startOfMonth) {
+                monthlyTotal += sale.valor;
+            }
         });
 
         dailyTotalDisplay.innerText = `R$ ${dailyTotal.toFixed(2)}`;
+        weeklyTotalDisplay.innerText = `R$ ${weeklyTotal.toFixed(2)}`;
+        monthlyTotalDisplay.innerText = `R$ ${monthlyTotal.toFixed(2)}`;
     };
 
     const saveSale = (descricao, valor, data) => {
